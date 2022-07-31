@@ -1,5 +1,5 @@
-import { ApiGetGuidelineList } from "@/api";
-import { Button, Card, Popconfirm, Table } from "antd";
+import { ApiDeleteGuideline, ApiGetGuidelineList } from "@/api";
+import { Button, Card, message, Popconfirm, Table } from "antd";
 import { useEffect, useState } from "react";
 import "./list.less";
 
@@ -12,6 +12,7 @@ interface Guideline {
 const data: Guideline[] = []
 
 const GuidelineList = () => {
+  const [refreshKey, setRefreshKey] = useState(0);
   const [guidelineList, setGuidelineList] = useState(data)
   const [pagination, setPagination] = useState({
     current: 1,
@@ -28,10 +29,12 @@ const GuidelineList = () => {
 
   useEffect(() => {
     getGuidelineList();
-  }, [pagination.current])
+  }, [pagination.current, refreshKey])
 
   const deleteGuideline = async (id: number) => {
-    console.log({ id });
+    await ApiDeleteGuideline(id);
+    message.success("删除成功！");
+    setRefreshKey(refreshKey + 1);
   }
 
   return (

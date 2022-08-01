@@ -19,7 +19,7 @@ const App = () => {
         <section className="content-container">
           <Routes>
             <Route path="/guideline/list" element={<GuidelineList />} />
-            <Route path="/guideline/modify" element={<ModifyGuideline />} />
+            <Route path="/guideline/:type" element={<ModifyGuideline />} />
           </Routes>
         </section>
       </section>

@@ -1,7 +1,8 @@
-import { Button, Card, Select, Input, Table, Upload } from "antd";
+import { Button, Card, Select, Input, Table, Upload, Form } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { useState } from "react";
 import "./GuidelineItemEditor.less";
+import { useForm } from "antd/lib/form/Form";
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -21,14 +22,6 @@ const guidelineItemList: GuidelineItem[] = [
   {
     type: 1,
     content: ''
-  },
-  {
-    type: 2,
-    content: ''
-  },
-  {
-    type: 3,
-    content: ''
   }
 ];
 
@@ -42,6 +35,7 @@ const GuidelineShop = () => {
 }
 
 const GuidelineItemEditor = () => {
+  const form = useForm();
   const [items, setItems] = useState(guidelineItemList);
 
   const addItem = () => {
@@ -66,17 +60,20 @@ const GuidelineItemEditor = () => {
       title="攻略项目编辑器"
       bordered={false}
       extra={<Button type="link" onClick={() => addItem()}>新增项目</Button>}>
+      <Form form={form}>
+        
+      </Form>
       <Table
         dataSource={items}
       >
-        <Column title="项目类型" dataIndex="type" key="type" render={(type) =>
+        <Column title="项目类型" dataIndex="type" render={(type) =>
           <Select value={type} style={{ width: 120 }}>
             <Option value={1}>文本</Option>
             <Option value={2}>店铺</Option>
             <Option value={3}>图片</Option>
           </Select>
         }></Column>
-        <Column title="项目内容" dataIndex="content" key="content" render={(content, record: GuidelineItem) =>
+        <Column title="项目内容" dataIndex="content" render={(content, record: GuidelineItem) =>
           <>
             {
               record.type === 1
@@ -96,7 +93,7 @@ const GuidelineItemEditor = () => {
 
           </>
         }></Column>
-        <Column title="操作" dataIndex="content" key="content" render={(content, record, index) =>
+        <Column title="操作" dataIndex="content" render={(content, record, index) =>
           <>
             <Button type="link" onClick={() => sortGuidelineItem(index, -1)}>上移</Button>
             <Button type="link" onClick={() => sortGuidelineItem(index, 1)}>下移</Button>

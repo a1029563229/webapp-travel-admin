@@ -1,5 +1,4 @@
-import { Button, Card, Form, Input, Radio, Upload } from "antd";
-import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
+import { Button, Card, Form, Input, Radio } from "antd";
 import { useParams } from "react-router-dom";
 import GuidelineItemEditor from "./components/GuidelineItemEditor";
 import ImgUploader from "@/components/img-uploader";
@@ -12,14 +11,6 @@ const ModifyGuideline = () => {
     console.log('Success:', values);
   };
 
-  const loading = false;
-  const UploadButton = () => (
-    <div>
-      {loading ? <LoadingOutlined /> : <PlusOutlined />}
-      <div style={{ marginTop: 8 }}>上传图片</div>
-    </div>
-  );
-
   return (
     <Card title={type == "add" ? "新增攻略" : "修改攻略"}>
       <Form
@@ -29,7 +20,7 @@ const ModifyGuideline = () => {
         initialValues={{ type: 1 }}
         onFinish={onFinish}
       >
-        <Form.Item
+        {/* <Form.Item
           label="攻略类型"
           name="type"
           rules={[{ required: true, message: '请选择攻略类型' }]}
@@ -81,13 +72,13 @@ const ModifyGuideline = () => {
           rules={[{ required: true, message: '请输入攻略标签' }]}
         >
           <Input placeholder="请输入攻略标签，以逗号隔开" />
-        </Form.Item>
-        {/* <Form.Item
+        </Form.Item> */}
+        <Form.Item
           label="攻略项目"
           name="items"
         >
           <GuidelineItemEditor />
-        </Form.Item> */}
+        </Form.Item>
         <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
           <Button type="primary" htmlType="submit">
             保存

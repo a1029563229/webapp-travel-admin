@@ -2,6 +2,7 @@ import { Button, Card, Form, Input, Radio, Upload } from "antd";
 import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
 import { useParams } from "react-router-dom";
 import GuidelineItemEditor from "./components/GuidelineItemEditor";
+import ImgUploader from "@/components/img-uploader";
 
 const ModifyGuideline = () => {
   const { type } = useParams();
@@ -58,15 +59,7 @@ const ModifyGuideline = () => {
           rules={[{ required: true, message: '请上传攻略封面' }]}
           valuePropName="fileList"
         >
-          <Upload
-            name="avatar"
-            listType="picture-card"
-            className="avatar-uploader"
-            showUploadList={false}
-            action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
-          >
-            <UploadButton />
-          </Upload>
+          <ImgUploader max={1} />
         </Form.Item>
         <Form.Item
           label="攻略城市"
@@ -84,17 +77,17 @@ const ModifyGuideline = () => {
         </Form.Item>
         <Form.Item
           label="攻略标签"
-          name="day"
+          name="tag"
           rules={[{ required: true, message: '请输入攻略标签' }]}
         >
           <Input placeholder="请输入攻略标签，以逗号隔开" />
         </Form.Item>
-        <Form.Item
+        {/* <Form.Item
           label="攻略项目"
           name="items"
         >
           <GuidelineItemEditor />
-        </Form.Item>
+        </Form.Item> */}
         <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
           <Button type="primary" htmlType="submit">
             保存

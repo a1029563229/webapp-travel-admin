@@ -1,8 +1,9 @@
 import { Button, Card, Select, Input, Table, Upload, Form } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
-import { useState } from "react";
-import "./GuidelineItemEditor.less";
+import { useEffect, useState } from "react";
 import { useForm } from "antd/lib/form/Form";
+import "./GuidelineItemEditor.less";
+import ImgUploader from "@/components/img-uploader";
+import { ApiGetShopList } from "@/api";
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -26,25 +27,51 @@ const guidelineItemList: GuidelineItem[] = [
 ];
 
 const GuidelineShop = () => {
+  const [shopList, setShopList] = useState([]);
+  useEffect(async () => {
+    const reply = await ApiGetShopList({ 
+      pageIndex: 1, 
+      pageSize: 999, 
+      city: '深圳' 
+    });
+    setShopList(reply.data);
+    console.log(shopList);
+  }, [])
+
   return (
     <section className="guideline-shop-container">
-      <div className="guideline-shop-item"><Select style={{ width: 120 }} placeholder="请选择店铺" /></div>
-      <div className="guideline-shop-item"><Input placeholder="展示图片数量" /></div>
+      <div className="guideline-shop-item">
+        <Form.Item name="shop_id">
+          <Select style={{ width: 120 }} placeholder="请选择店铺">
+            {shopList.map((item: any) => (
+              <Option value={item.id}>{item.name}</Option>
+            ))}
+          </Select>
+        </Form.Item>
+      </div>
+      <div className="guideline-shop-item">
+        <Form.Item name="images">
+          <Input placeholder="展示图片数量" />
+        </Form.Item>
+      </div>
     </section>
   )
 }
 
 const GuidelineItemEditor = () => {
-  const form = useForm();
   const [items, setItems] = useState(guidelineItemList);
+  const forms = items.map(item => useForm()[0]);
 
   const addItem = () => {
     setItems([...items, guidelineItemTpl]);
   }
 
   const deleteItem = (index: number) => {
-    items.splice(index, 1);
-    setItems([...items]);
+    const form = forms[index];
+    const values = form.getFieldsValue();
+    console.log(values);
+    // items.splice(index, 1);
+    // setItems([...items]);
   }
 
   const sortGuidelineItem = (index: number, sort: number) => {
@@ -60,9 +87,6 @@ const GuidelineItemEditor = () => {
       title="攻略项目编辑器"
       bordered={false}
       extra={<Button type="link" onClick={() => addItem()}>新增项目</Button>}>
-      <Form form={form}>
-        
-      </Form>
       <Table
         dataSource={items}
       >
@@ -73,24 +97,21 @@ const GuidelineItemEditor = () => {
             <Option value={3}>图片</Option>
           </Select>
         }></Column>
-        <Column title="项目内容" dataIndex="content" render={(content, record: GuidelineItem) =>
+        <Column title="项目内容" dataIndex="content" render={(content, record: GuidelineItem, index) =>
           <>
-            {
-              record.type === 1
-                ? <TextArea placeholder="请输入项目内容" style={{ width: 400 }} />
-                : record.type === 2
-                  ? <GuidelineShop />
-                  : <Upload
-                    listType="picture-card"
-                    showUploadList={false}
-                  >
-                    <div>
-                      <PlusOutlined />
-                      <div style={{ marginTop: 8 }}>上传图片</div>
-                    </div>
-                  </Upload>
-            }
-
+            <Form form={forms[index]}>
+              {
+                record.type === 1
+                  ? <Form.Item name="content">
+                    <TextArea placeholder="请输入项目内容" style={{ width: 400 }} />
+                  </Form.Item>
+                  : record.type === 2
+                    ? <GuidelineShop />
+                    : <Form.Item name="url">
+                      <ImgUploader />
+                    </Form.Item>
+              }
+            </Form>
           </>
         }></Column>
         <Column title="操作" dataIndex="content" render={(content, record, index) =>

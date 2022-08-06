@@ -23,7 +23,7 @@ const ImgUploader = ({
     setFileList(newFileList);
 
     if (!newFileList.every((item: any) => item.status === 'done')) return;
-    const imgList = newFileList.map((item: any) => item.response.data);
+    const imgList = newFileList.map((item: any) => item.response);
     onChange && onChange(max === 1 ? imgList[0] : imgList);
   }
 

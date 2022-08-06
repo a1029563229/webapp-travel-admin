@@ -10,27 +10,30 @@ const { Option } = Select;
 const { Column } = Table;
 
 type GuidelineRoute = {
-  type: number;
   rowKey: string;
+  type?: number;
   content?: string;
   day?: number;
   start_time?: string;
   time_consuming?: number;
 }
 
-const guidelineRouteTpl = {
-  type: 1,
-}
-
 const guidelineRouteList: GuidelineRoute[] = [
   {
-    type: 1,
     rowKey: uuid()
   }
 ];
 
+const GuidelineContent = (props: any) => {
+  const { index, name } = props;
+
+  return (<Form.Item name={[name, index, 'content']} rules={[{ required: true, message: '请输入旅游点' }]}>
+    <Input placeholder="请输入旅游点" />
+  </Form.Item>)
+}
+
 const GuidelineShop = (props: any) => {
-  const { index } = props;
+  const { index, name } = props;
   const [shopList, setShopList] = useState([]);
   useEffect(() => {
     (async () => {
@@ -46,10 +49,10 @@ const GuidelineShop = (props: any) => {
   return (
     <section className="guideline-shop-container">
       <div className="guideline-shop-item">
-        <Form.Item name={[index, 'shop_id']}>
+        <Form.Item name={[name, index, 'shop_id']}>
           <Select style={{ width: 180 }} placeholder="请选择店铺">
             {shopList.map((item: any) => (
-              <Option value={item.id}>{item.name}</Option>
+              <Option key={item.id} value={item.id}>{item.name}</Option>
             ))}
           </Select>
         </Form.Item>
@@ -60,10 +63,11 @@ const GuidelineShop = (props: any) => {
 
 const GuidelineRouteEditor = (props: any) => {
   const [items, setItems] = useState(guidelineRouteList);
-  const [form] = useForm();
+  const { name, form } = props;
+  console.log(form.getFieldsValue());
 
   const addItem = () => {
-    setItems([...items, { ...guidelineRouteTpl, rowKey: uuid() }]);
+    setItems([...items, { rowKey: uuid() }]);
   }
 
   const deleteItem = (index: number) => {
@@ -78,25 +82,9 @@ const GuidelineRouteEditor = (props: any) => {
     items.splice(index + sort, 0, ...items.splice(index, 1));
     setItems([...items]);
 
-    const values = Object.values(form.getFieldsValue());
+    const values = Object.values(form.getFieldsValue()[name]);
     values.splice(index + sort, 0, ...values.splice(index, 1));
     form.setFieldsValue(values);
-  }
-
-  const setType = (index: number, type: number) => {
-    items[index].type = type;
-    setItems([...items]);
-  }
-
-  const onValuesChange = () => {
-    const values = form.getFieldsValue();
-    const outputValues = items.map((item, i) => ({
-      ...item,
-      ...values[i],
-      start_time: values[i].start_time ? values[i].start_time.format('HH:mm') : null
-    }));
-    console.log(outputValues);
-    props.onChange && props.onChange(outputValues);
   }
 
   return (
@@ -104,40 +92,42 @@ const GuidelineRouteEditor = (props: any) => {
       title="攻略路线编辑器"
       bordered={false}
       extra={<Button type="link" onClick={() => addItem()}>新增项目</Button>}>
-      <Form className="project-form" form={form} onValuesChange={onValuesChange}>
+      <section className="project-form">
         <Table
           dataSource={items}
           rowKey={(r) => r.rowKey}
         >
           <Column title="路线类型" dataIndex="type" width={150} render={(type, record, index) =>
-            <Select value={type} style={{ width: 120 }} onChange={(v) => setType(index, v)}>
-              <Option value={1}>文本</Option>
-              <Option value={2}>店铺</Option>
-            </Select>
+            <Form.Item name={[name, index, 'type']} initialValue={1}>
+              <Select value={type} style={{ width: 120 }}>
+                <Option value={1}>文本</Option>
+                <Option value={2}>店铺</Option>
+              </Select>
+            </Form.Item>
           }></Column>
           <Column title="天数" dataIndex="day" width={120} render={(content, record: GuidelineRoute, index) =>
-            <Form.Item name={[index, 'day']} initialValue="1">
+            <Form.Item name={[name, index, 'day']} initialValue="1">
               <Input prefix="第" suffix="天" />
             </Form.Item>
           }></Column>
           <Column title="开始时间" dataIndex="start_time" width={150} render={(content, record: GuidelineRoute, index) =>
-            <Form.Item name={[index, 'start_time']} initialValue={moment('10:00', 'HH:mm')}>
+            <Form.Item name={[name, index, 'start_time']} initialValue={moment('10:00', 'HH:mm')}>
               <TimePicker placeholder="开始时间" format="HH:mm" />
             </Form.Item>
           }></Column>
           <Column title="路线内容" dataIndex="content" render={(content, record: GuidelineRoute, index) =>
             <>
               {
-                record.type === 1
-                  ? <Form.Item name={[index, 'content']} rules={[{ required: true, message: '请输入旅游点' }]}>
-                    <Input placeholder="请输入旅游点" />
-                  </Form.Item>
-                  : <GuidelineShop index={index} />
+                form.getFieldsValue()[name]
+                  ? form.getFieldsValue()[name][index].type === 1
+                    ? <GuidelineContent name={name} index={index} />
+                    : <GuidelineShop name={name} index={index} />
+                  : <GuidelineContent name={name} index={index} />
               }
             </>
           }></Column>
           <Column title="预计用时" dataIndex="time_consuming" width={120} render={(content, record: GuidelineRoute, index) =>
-            <Form.Item name={[index, 'time_consuming']} rules={[{ required: true, message: '请输入' }]}>
+            <Form.Item name={[name, index, 'time_consuming']} rules={[{ required: true, message: '请输入' }]}>
               <Input suffix="小时" />
             </Form.Item>
           }></Column>
@@ -149,7 +139,7 @@ const GuidelineRouteEditor = (props: any) => {
             </>
           }></Column>
         </Table>
-      </Form>
+      </section>
     </Card>
   )
 }

@@ -3,9 +3,11 @@ import { useParams } from "react-router-dom";
 import GuidelineItemEditor from "./components/GuidelineItemEditor";
 import ImgUploader from "@/components/img-uploader";
 import GuidelineRouteEditor from "./components/GuidelineRouteEditor";
+import { useForm } from "antd/es/form/Form";
 
 const ModifyGuideline = () => {
   const { type } = useParams();
+  const [form] = useForm();
   console.log({ type });
 
   const onFinish = (values: any) => {
@@ -16,6 +18,7 @@ const ModifyGuideline = () => {
     <Card title={type == "add" ? "新增攻略" : "修改攻略"}>
       <Form
         name="basic"
+        form={form}
         labelCol={{ span: 2 }}
         wrapperCol={{ span: 22 }}
         initialValues={{ type: 1 }}
@@ -84,7 +87,7 @@ const ModifyGuideline = () => {
           label="攻略路线"
           name="routes"
         >
-          <GuidelineRouteEditor />
+          <GuidelineRouteEditor name="routes" form={form} />
         </Form.Item>
         <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
           <Button type="primary" htmlType="submit">

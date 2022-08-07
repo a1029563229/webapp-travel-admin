@@ -20,28 +20,29 @@ const testData = {
       "content": "首先进入成都"
     },
     {
+      "type": 3,
+      "url": "http://shadows-mall.oss-cn-shenzhen.aliyuncs.com/2d2e0bcf26fcfc76185033efe0326f1db6924b5478a92cbcdc4463449d3fa464.jpg",
+      "images": 1
+    },
+    {
       "type": 2,
       "images": 1,
       "shop_id": 60
-    },
-    {
-      "type": 3,
-      "url": "http://shadows-mall.oss-cn-shenzhen.aliyuncs.com/2d2e0bcf26fcfc76185033efe0326f1db6924b5478a92cbcdc4463449d3fa464.jpg"
     }
   ],
   "routes": [
-    {
-      "type": 1,
-      "day": "1",
-      "start_time": "10:00",
-      "content": "景点",
-      "time_consuming": "1"
-    },
     {
       "type": 2,
       "day": "1",
       "start_time": "16:00",
       "shop_id": 62,
+      "time_consuming": "1"
+    },
+    {
+      "type": 1,
+      "day": "1",
+      "start_time": "10:00",
+      "content": "景点",
       "time_consuming": "1"
     }
   ]

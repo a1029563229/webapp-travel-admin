@@ -84,7 +84,7 @@ const GuidelineRouteEditor = (props: any) => {
 
     const values = Object.values(form.getFieldsValue()[name]);
     values.splice(index + sort, 0, ...values.splice(index, 1));
-    form.setFieldsValue(values);
+    form.setFieldsValue({[name]: values});
   }
 
   return (
@@ -96,6 +96,7 @@ const GuidelineRouteEditor = (props: any) => {
         <Table
           dataSource={items}
           rowKey={(r) => r.rowKey}
+          pagination={false}
         >
           <Column title="路线类型" dataIndex="type" width={150} render={(type, record, index) =>
             <Form.Item name={[name, index, 'type']} initialValue={1}>
@@ -118,8 +119,8 @@ const GuidelineRouteEditor = (props: any) => {
           <Column title="路线内容" dataIndex="content" render={(content, record: GuidelineRoute, index) =>
             <>
               {
-                value
-                  ? value[index].type === 1
+                items
+                  ? items[index].type === 1
                     ? <GuidelineContent name={name} index={index} />
                     : <GuidelineShop name={name} index={index} />
                   : <GuidelineContent name={name} index={index} />

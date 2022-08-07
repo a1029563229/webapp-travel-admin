@@ -9,7 +9,7 @@ const { Option } = Select;
 const { Column } = Table;
 const { TextArea } = Input;
 
-type GuidelineItem = {
+export type GuidelineItem = {
   rowKey: string;
   type?: number;
   content?: string;
@@ -27,7 +27,7 @@ const guidelineRouteList: GuidelineItem[] = [
 const GuidelineContent = (props: any) => {
   const { index, name } = props;
 
-  return (<Form.Item name={[name, index, 'content']} rules={[{ required: true, message: '请输入旅游点' }]}>
+  return (<Form.Item name={[name, index, 'content']} rules={[{ required: true, message: '请输入项目内容' }]}>
     <TextArea placeholder="请输入项目内容" style={{ width: 400 }} />
   </Form.Item>)
 }
@@ -49,7 +49,7 @@ const GuidelineShop = (props: any) => {
   return (
     <section className="guideline-shop-container">
       <div className="guideline-shop-item">
-        <Form.Item name={[name, index, 'shop_id']}>
+        <Form.Item name={[name, index, 'shop_id']} rules={[{ required: true, message: '请选择店铺' }]}>
           <Select style={{ width: 180 }} placeholder="请选择店铺">
             {shopList.map((item: any) => (
               <Option key={item.id} value={item.id}>{item.name}</Option>
@@ -57,13 +57,20 @@ const GuidelineShop = (props: any) => {
           </Select>
         </Form.Item>
       </div>
+      <div className="guideline-shop-item">
+        <Form.Item name={[name, index, 'images']} initialValue={1} rules={[{ required: true, message: '请输入展示图片数量' }]}>
+          <Input placeholder="展示图片数量" />
+        </Form.Item>
+      </div>
     </section>
   )
 }
 
 const GuidelineItemEditor = (props: any) => {
-  const [items, setItems] = useState(guidelineRouteList);
-  const { name, form } = props;
+  const { name, form, value } = props;
+  const [items, setItems] = useState(value && value.length 
+    ? value.map((item: any) => ({ ...item, rowKey: uuid() }))
+    : guidelineRouteList);
 
   const addItem = () => {
     setItems([...items, { rowKey: uuid() }]);
@@ -86,51 +93,51 @@ const GuidelineItemEditor = (props: any) => {
     form.setFieldsValue(values);
   }
 
-  return (
-    <Card
-      title="攻略项目编辑器"
-      bordered={false}
-      extra={<Button type="link" onClick={() => addItem()}>新增项目</Button>}>
-      <section className="project-form">
-        <Table
-          dataSource={items}
-          rowKey={(r) => r.rowKey}
-        >
-          <Column title="项目类型" dataIndex="type" width={150} render={(type, record, index) =>
-            <Form.Item name={[name, index, 'type']} initialValue={1}>
-              <Select value={type} style={{ width: 120 }}>
-                <Option value={1}>文本</Option>
-                <Option value={2}>店铺</Option>
-                <Option value={3}>图片</Option>
-              </Select>
-            </Form.Item>
-          }></Column>
-          <Column title="项目内容" dataIndex="content" render={(content, record: GuidelineItem, index) =>
-            <>
-              {
-                form.getFieldsValue()[name]
-                  ? form.getFieldsValue()[name][index].type === 1
-                    ? <GuidelineContent name={name} index={index} />
-                    : form.getFieldsValue()[name][index].type === 2
-                      ? <GuidelineShop name={name} index={index} />
-                      : <Form.Item name={[name, index, 'url']}>
-                        <ImgUploader max={1} />
-                      </Form.Item>
-                  : <GuidelineContent name={name} index={index} />
-              }
-            </>
-          }></Column>
-          <Column title="操作" dataIndex="content" render={(content, record, index) =>
-            <>
-              <Button type="link" onClick={() => sortGuidelineItem(index, -1)}>上移</Button>
-              <Button type="link" onClick={() => sortGuidelineItem(index, 1)}>下移</Button>
-              <Button type="link" onClick={() => deleteItem(index)}>删除</Button>
-            </>
-          }></Column>
-        </Table>
-      </section>
-    </Card>
-  )
-}
+    return (
+      <Card
+        title="攻略项目编辑器"
+        bordered={false}
+        extra={<Button type="link" onClick={() => addItem()}>新增项目</Button>}>
+        <section className="project-form">
+          <Table
+            dataSource={items}
+            rowKey={(r) => r.rowKey}
+          >
+            <Column title="项目类型" dataIndex="type" width={150} render={(type, record, index) =>
+              <Form.Item name={[name, index, 'type']} initialValue={1}>
+                <Select value={type} style={{ width: 120 }}>
+                  <Option value={1}>文本</Option>
+                  <Option value={2}>店铺</Option>
+                  <Option value={3}>图片</Option>
+                </Select>
+              </Form.Item>
+            }></Column>
+            <Column title="项目内容" dataIndex="content" render={(content, record: GuidelineItem, index) =>
+              <>
+                {
+                  value
+                    ? value[index].type === 1
+                      ? <GuidelineContent name={name} index={index} />
+                      : value[index].type === 2
+                        ? <GuidelineShop name={name} index={index} />
+                        : <Form.Item name={[name, index, 'url']} rules={[{ required: true, message: '请上传图片' }]}>
+                          <ImgUploader max={1} />
+                        </Form.Item>
+                    : <GuidelineContent name={name} index={index} />
+                }
+              </>
+            }></Column>
+            <Column title="操作" dataIndex="content" render={(content, record, index) =>
+              <>
+                <Button type="link" onClick={() => sortGuidelineItem(index, -1)}>上移</Button>
+                <Button type="link" onClick={() => sortGuidelineItem(index, 1)}>下移</Button>
+                <Button type="link" onClick={() => deleteItem(index)}>删除</Button>
+              </>
+            }></Column>
+          </Table>
+        </section>
+      </Card>
+    )
+  }
 
-export default GuidelineItemEditor;
+  export default GuidelineItemEditor;

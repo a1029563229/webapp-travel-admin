@@ -8,12 +8,12 @@ import { v4 as uuid } from "uuid";
 const { Option } = Select;
 const { Column } = Table;
 
-type GuidelineRoute = {
+export type GuidelineRoute = {
   rowKey: string;
   type?: number;
   content?: string;
   day?: number;
-  start_time?: string;
+  start_time?: any;
   time_consuming?: number;
 }
 
@@ -61,9 +61,10 @@ const GuidelineShop = (props: any) => {
 }
 
 const GuidelineRouteEditor = (props: any) => {
-  const [items, setItems] = useState(guidelineRouteList);
-  const { name, form } = props;
-  console.log(form.getFieldsValue());
+  const { name, form, value } = props;
+  const [items, setItems] = useState(value && value.length
+    ? value.map((item: any) => ({ ...item, rowKey: uuid() }))
+    : guidelineRouteList);
 
   const addItem = () => {
     setItems([...items, { rowKey: uuid() }]);
@@ -117,8 +118,8 @@ const GuidelineRouteEditor = (props: any) => {
           <Column title="路线内容" dataIndex="content" render={(content, record: GuidelineRoute, index) =>
             <>
               {
-                form.getFieldsValue()[name]
-                  ? form.getFieldsValue()[name][index].type === 1
+                value
+                  ? value[index].type === 1
                     ? <GuidelineContent name={name} index={index} />
                     : <GuidelineShop name={name} index={index} />
                   : <GuidelineContent name={name} index={index} />

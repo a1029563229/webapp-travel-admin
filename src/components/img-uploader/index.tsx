@@ -3,11 +3,21 @@ import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
 import { useState } from "react";
 import { baseURL } from "@/service";
 
-const ImgUploader = ({
-  multiple = false,
-  max = 9,
-  onChange = (v: any) => { }
-}) => {
+const getFileItem = (file: string) => {
+  return {
+    status: 'done',
+    url: file
+  } as any
+}
+
+const ImgUploader = (props: any) => {
+  const {
+    multiple = false,
+    max = 9,
+    onChange = (v: any) => { },
+    value,
+  } = props;
+
   const [loading, setLoading] = useState(false);
   const UploadButton = () => (
     <div>
@@ -16,7 +26,13 @@ const ImgUploader = ({
     </div>
   )
 
-  const [fileList, setFileList] = useState<UploadFile[]>([]);
+  const [fileList, setFileList] = useState<UploadFile[]>(
+    value
+      ? Array.isArray(value)
+        ? value.map((file: string) => getFileItem(file))
+        : [getFileItem(value)]
+      : []
+  );
 
   const onChangeHandler = (e: any) => {
     const { fileList: newFileList } = e;

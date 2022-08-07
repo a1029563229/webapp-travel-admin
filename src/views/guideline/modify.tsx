@@ -1,6 +1,6 @@
 import { Button, Card, Form, Input, Radio } from "antd";
 import { useParams } from "react-router-dom";
-import GuidelineItemEditor from "./components/GuidelineItemEditor";
+import GuidelineItemEditor from "../useless/GuidelineItemEditor1";
 import ImgUploader from "@/components/img-uploader";
 import GuidelineRouteEditor from "./components/GuidelineRouteEditor";
 import { useForm } from "antd/es/form/Form";
@@ -77,12 +77,12 @@ const ModifyGuideline = () => {
         >
           <Input placeholder="请输入攻略标签，以逗号隔开" />
         </Form.Item> */}
-        {/* <Form.Item
+        <Form.Item
           label="攻略项目"
           name="items"
         >
-          <GuidelineItemEditor />
-        </Form.Item> */}
+          <GuidelineItemEditor name="items" form={form} />
+        </Form.Item>
         <Form.Item
           label="攻略路线"
           name="routes"

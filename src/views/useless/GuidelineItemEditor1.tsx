@@ -1,39 +1,36 @@
-import { Button, Card, Select, Input, Table, Form, TimePicker } from "antd";
+import { Button, Card, Select, Input, Table, Upload, Form } from "antd";
 import { useEffect, useState } from "react";
-import "./GuidelineItemEditor.less";
+import { useForm } from "antd/lib/form/Form";
+import ImgUploader from "@/components/img-uploader";
 import { ApiGetShopList } from "@/api";
 import { v4 as uuid } from "uuid";
-import ImgUploader from "@/components/img-uploader";
 
 const { Option } = Select;
-const { Column } = Table;
 const { TextArea } = Input;
+const { Column } = Table;
 
 type GuidelineItem = {
+  type: number;
   rowKey: string;
-  type?: number;
   content?: string;
   shop_id?: number;
   images?: number;
   url?: string;
 }
 
-const guidelineRouteList: GuidelineItem[] = [
+const guidelineItemTpl = {
+  type: 1,
+}
+
+const guidelineItemList: GuidelineItem[] = [
   {
+    type: 1,
     rowKey: uuid()
   }
 ];
 
-const GuidelineContent = (props: any) => {
-  const { index, name } = props;
-
-  return (<Form.Item name={[name, index, 'content']} rules={[{ required: true, message: '请输入旅游点' }]}>
-    <TextArea placeholder="请输入项目内容" style={{ width: 400 }} />
-  </Form.Item>)
-}
-
 const GuidelineShop = (props: any) => {
-  const { index, name } = props;
+  const { index } = props;
   const [shopList, setShopList] = useState([]);
   useEffect(() => {
     (async () => {
@@ -49,12 +46,17 @@ const GuidelineShop = (props: any) => {
   return (
     <section className="guideline-shop-container">
       <div className="guideline-shop-item">
-        <Form.Item name={[name, index, 'shop_id']}>
-          <Select style={{ width: 180 }} placeholder="请选择店铺">
+        <Form.Item name={[index, 'shop_id']}>
+          <Select style={{ width: 120 }} placeholder="请选择店铺">
             {shopList.map((item: any) => (
-              <Option key={item.id} value={item.id}>{item.name}</Option>
+              <Option value={item.id}>{item.name}</Option>
             ))}
           </Select>
+        </Form.Item>
+      </div>
+      <div className="guideline-shop-item">
+        <Form.Item name={[index, 'images']}>
+          <Input placeholder="展示图片数量" />
         </Form.Item>
       </div>
     </section>
@@ -62,16 +64,18 @@ const GuidelineShop = (props: any) => {
 }
 
 const GuidelineItemEditor = (props: any) => {
-  const [items, setItems] = useState(guidelineRouteList);
-  const { name, form } = props;
+  const [items, setItems] = useState(guidelineItemList);
+  const [form] = useForm();
 
   const addItem = () => {
-    setItems([...items, { rowKey: uuid() }]);
+    setItems([...items, { ...guidelineItemTpl, rowKey: uuid() }]);
   }
 
   const deleteItem = (index: number) => {
-    items.splice(index, 1);
-    setItems([...items]);
+    const values = form.getFieldsValue();
+    console.log(values);
+    // items.splice(index, 1);
+    // setItems([...items]);
   }
 
   const sortGuidelineItem = (index: number, sort: number) => {
@@ -81,9 +85,21 @@ const GuidelineItemEditor = (props: any) => {
     items.splice(index + sort, 0, ...items.splice(index, 1));
     setItems([...items]);
 
-    const values = Object.values(form.getFieldsValue()[name]);
+    const values = Object.values(form.getFieldsValue());
     values.splice(index + sort, 0, ...values.splice(index, 1));
     form.setFieldsValue(values);
+  }
+
+  const setType = (index: number, type: number) => {
+    items[index].type = type;
+    setItems([...items]);
+  }
+
+  const onValuesChange = () => {
+    const values = form.getFieldsValue();
+    const outputValues = items.map((item, i) => ({ ...item, ...values[i] }));
+    console.log(outputValues);
+    props.onChange && props.onChange(outputValues);
   }
 
   return (
@@ -91,32 +107,30 @@ const GuidelineItemEditor = (props: any) => {
       title="攻略项目编辑器"
       bordered={false}
       extra={<Button type="link" onClick={() => addItem()}>新增项目</Button>}>
-      <section className="project-form">
+      <Form className="project-form" form={form} onValuesChange={onValuesChange}>
         <Table
           dataSource={items}
           rowKey={(r) => r.rowKey}
         >
-          <Column title="项目类型" dataIndex="type" width={150} render={(type, record, index) =>
-            <Form.Item name={[name, index, 'type']} initialValue={1}>
-              <Select value={type} style={{ width: 120 }}>
-                <Option value={1}>文本</Option>
-                <Option value={2}>店铺</Option>
-                <Option value={3}>图片</Option>
-              </Select>
-            </Form.Item>
+          <Column title="项目类型" dataIndex="type" render={(type, record, index) =>
+            <Select value={type} style={{ width: 120 }} onChange={(v) => setType(index, v)}>
+              <Option value={1}>文本</Option>
+              <Option value={2}>店铺</Option>
+              <Option value={3}>图片</Option>
+            </Select>
           }></Column>
           <Column title="项目内容" dataIndex="content" render={(content, record: GuidelineItem, index) =>
             <>
               {
-                form.getFieldsValue()[name]
-                  ? form.getFieldsValue()[name][index].type === 1
-                    ? <GuidelineContent name={name} index={index} />
-                    : form.getFieldsValue()[name][index].type === 2
-                      ? <GuidelineShop name={name} index={index} />
-                      : <Form.Item name={[name, index, 'url']}>
-                        <ImgUploader max={1} />
-                      </Form.Item>
-                  : <GuidelineContent name={name} index={index} />
+                record.type === 1
+                  ? <Form.Item name={[index, 'content']}>
+                    <TextArea placeholder="请输入项目内容" style={{ width: 400 }} />
+                  </Form.Item>
+                  : record.type === 2
+                    ? <GuidelineShop index={index} />
+                    : <Form.Item name={[index, 'url']}>
+                      <ImgUploader max={1} />
+                    </Form.Item>
               }
             </>
           }></Column>
@@ -128,7 +142,7 @@ const GuidelineItemEditor = (props: any) => {
             </>
           }></Column>
         </Table>
-      </section>
+      </Form>
     </Card>
   )
 }
